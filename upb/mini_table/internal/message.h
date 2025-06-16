@@ -42,6 +42,8 @@ typedef enum {
   kUpb_ExtMode_IsMapEntry = 4,
 } upb_ExtMode;
 
+#define kUpb_Message_Align 8
+
 // upb_MiniTable represents the memory layout of a given upb_MessageDef.
 // The members are public so generated code can initialize them,
 // but users MUST NOT directly read or write any of its members.
@@ -51,8 +53,8 @@ struct upb_MiniTable {
   const upb_MiniTableSubInternal* UPB_PRIVATE(subs);
   const struct upb_MiniTableField* UPB_ONLYBITS(fields);
 
-  // Must be aligned to sizeof(void*). Doesn't include internal members like
-  // unknown fields, extension dict, pointer to msglayout, etc.
+  // Must be aligned to kUpb_Message_Align. Doesn't include internal members
+  // like unknown fields, extension dict, pointer to msglayout, etc.
   uint16_t UPB_PRIVATE(size);
 
   uint16_t UPB_ONLYBITS(field_count);

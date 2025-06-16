@@ -7,9 +7,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include <string.h>
 
-#include "upb/mem/arena.h"
+#include "upb/message/internal/message.h"
 #include "upb/message/message.h"
 #include "upb/mini_table/message.h"
 #include "upb/wire/decode.h"
@@ -25,11 +24,8 @@
 
 UPB_INLINE
 upb_Message* decode_newmsg(upb_Decoder* d, const upb_MiniTable* m) {
-  size_t size = m->UPB_PRIVATE(size);
   // OPT: specialize for message size
-  char* msg_data = (char*)upb_Arena_Malloc(&d->arena, size);
-  memset(msg_data, 0, size);
-  return (upb_Message*)msg_data;
+  return _upb_Message_New(m, &d->arena);
 }
 
 typedef struct {

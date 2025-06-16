@@ -24,6 +24,7 @@
 #include "upb/message/internal/extension.h"
 #include "upb/message/internal/types.h"
 #include "upb/mini_table/extension.h"
+#include "upb/mini_table/internal/message.h"
 #include "upb/mini_table/message.h"
 
 // Must be last.
@@ -128,7 +129,12 @@ UPB_INLINE struct upb_Message* _upb_Message_New(const upb_MiniTable* m,
   upb_Message_LogNewMessage(m, a);
 #endif  // UPB_TRACING_ENABLED
 
-  const int size = m->UPB_PRIVATE(size);
+  const size_t size = m->UPB_PRIVATE(size);
+  // Message sizes are aligned up when constructing minitables; telling the
+  // compiler this avoids redoing alignment on the malloc fast path
+  UPB_ASSUME(size % kUpb_Message_Align == 0);
+  UPB_ASSERT(kUpb_Message_Align >= UPB_ALIGN_OF(void*));
+  UPB_ASSERT(kUpb_Message_Align >= UPB_ALIGN_OF(struct upb_Message));
   struct upb_Message* msg = (struct upb_Message*)upb_Arena_Malloc(a, size);
   if (UPB_UNLIKELY(!msg)) return NULL;
   memset(msg, 0, size);
