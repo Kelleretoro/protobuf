@@ -1,5 +1,8 @@
 package com.google.protobuf;
 
+import org.junit.Assert;
+import org.junit.function.ThrowingRunnable;
+
 /**
  * These APIs are restricted to test-only targets, and are suitable for test purposes where it is
  * impractical to compare protos directly via ProtoTruth (e.g. log output).
@@ -78,5 +81,27 @@ public final class UnredactedDebugFormatForTest {
   public static String[] unredactedToStringArray(
           Object[] objects) {
     return LegacyUnredactedTextFormat.legacyUnredactedToStringArray(objects);
+  }
+
+  /**
+   * Like {@code Assert.assertThrows(expectedThrowable, runnable)}, for cases where Protobufs are
+   * stringified in some exception message.
+   */
+  public static <T extends Throwable> T unredactedAssertThrows(
+      Class<T> expectedThrowable, ThrowingRunnable runnable) {
+    return Assert.assertThrows(
+        expectedThrowable, () -> ProtobufToStringOutput.callWithTextFormat((Runnable) runnable));
+  }
+
+  /**
+   * Like {@code Assert.assertThrows(message, expectedThrowable, runnable)}, for cases where
+   * Protobufs are stringified in some exception message.
+   */
+  public static <T extends Throwable> T unredactedAssertThrows(
+      String message, Class<T> expectedThrowable, ThrowingRunnable runnable) {
+    return Assert.assertThrows(
+        message,
+        expectedThrowable,
+        () -> ProtobufToStringOutput.callWithTextFormat((Runnable) runnable));
   }
 }

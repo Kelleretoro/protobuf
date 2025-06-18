@@ -244,4 +244,28 @@ public final class UnredactedDebugFormatForTestTest {
                   + "}\n"
             });
   }
+
+  @Test
+  public void unredactedAssertThrows_returnsTextFormat() {
+
+    class IllegalArgumentExceptionWithMessage extends IllegalArgumentException {
+      IllegalArgumentExceptionWithMessage(Message message) {
+        super(message.toString());
+      }
+    }
+    UnittestProto.RedactedFields message =
+        UnittestProto.RedactedFields.newBuilder()
+            .addRepeatedRedactedMessage(
+                UnittestProto.TestNestedMessageRedaction.newBuilder()
+                    .setOptionalRedactedNestedString("123")
+                    .build())
+            .build();
+    Exception e =
+        UnredactedDebugFormatForTest.unredactedAssertThrows(
+            IllegalArgumentException.class,
+            () -> {
+              throw new IllegalArgumentExceptionWithMessage(message);
+            });
+    assertThat(e).hasMessageThat().contains(TextFormat.printer().printToString(message));
+  }
 }
